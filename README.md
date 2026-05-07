@@ -1,66 +1,164 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# ⚡ Lapor Listrik — Sistem Pelaporan Gangguan Listrik
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Sistem informasi berbasis web untuk pelaporan dan pemantauan gangguan listrik di **Desa Tanjung Durian**. Warga dapat melaporkan gangguan secara online dan memantau status penanganannya secara real-time. Petugas admin menerima notifikasi dan dapat memperbarui status laporan langsung dari dashboard.
 
-## About Laravel
+Urgensi setiap laporan diklasifikasikan secara otomatis menggunakan algoritma **C4.5 Decision Tree**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ✨ Fitur Utama
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- 📋 **Form Pelaporan Publik** — Warga mengisi laporan gangguan listrik (jenis, wilayah, durasi padam)
+- 🤖 **Klasifikasi Otomatis C4.5** — Sistem menentukan tingkat urgensi (Tinggi / Sedang / Rendah) secara otomatis
+- 🔍 **Cek Status Laporan** — Warga dapat memantau status laporannya menggunakan nomor HP
+- 📊 **Admin Dashboard** — Panel admin dengan statistik, chart per kategori, dan tabel laporan
+- ✅ **Manajemen Status** — Admin dapat mengubah status laporan: `Pending → Proses → Selesai`
+- 📱 **Notifikasi WhatsApp Otomatis** — Pesan WA terkirim ke pelapor saat laporan selesai ditangani (via [Fonnte API](https://fonnte.com))
 
-## Learning Laravel
+---
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## 🛠️ Tech Stack
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+| Layer | Teknologi |
+|---|---|
+| Framework | Laravel 12 |
+| Frontend Reaktif | Livewire Volt 3 |
+| Styling | Tailwind CSS |
+| Chart | Chart.js |
+| Database | MySQL / SQLite |
+| Notifikasi WA | Fonnte API |
+| Auth | Laravel Breeze |
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## 📸 Tampilan
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+| Halaman Publik | Admin Dashboard |
+|---|---|
+| Form pelaporan + Cek status | Chart, statistik, dan tabel laporan |
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## 🚀 Instalasi & Setup
 
-## Contributing
+### Prasyarat
+- PHP >= 8.2
+- Composer
+- Node.js & NPM
+- MySQL atau SQLite
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Langkah Instalasi
 
-## Code of Conduct
+```bash
+# 1. Clone repo
+git clone https://github.com/xazriel/lapor-listrik.git
+cd lapor-listrik
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 2. Install dependensi PHP
+composer install
 
-## Security Vulnerabilities
+# 3. Install dependensi JS
+npm install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 4. Salin file environment
+cp .env.example .env
 
-## License
+# 5. Generate app key
+php artisan key:generate
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# 6. Konfigurasi database di file .env
+# DB_CONNECTION=mysql
+# DB_DATABASE=lapor_listrik
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# 7. Jalankan migrasi
+php artisan migrate
+
+# 8. Build asset
+npm run build
+
+# 9. Jalankan server
+php artisan serve
+```
+
+Buka di browser: `http://127.0.0.1:8000`
+
+---
+
+## 👤 Akun Admin
+
+Buat akun admin melalui Tinker:
+
+```bash
+php artisan tinker
+```
+
+```php
+$user = App\Models\User::create([
+    'name'     => 'Admin',
+    'email'    => 'admin@example.com',
+    'password' => bcrypt('password'),
+]);
+$user->is_admin = true;
+$user->save();
+```
+
+Login di: `http://127.0.0.1:8000/login`
+Admin panel: `http://127.0.0.1:8000/admin`
+
+---
+
+## 📱 Konfigurasi Notifikasi WhatsApp (Fonnte)
+
+1. Daftar di [fonnte.com](https://fonnte.com) dan hubungkan perangkat WA
+2. Salin token API kamu
+3. Ganti token di `resources/views/livewire/admindashboard.blade.php`:
+
+```php
+$token = "TOKEN_FONNTE_KAMU_DISINI";
+```
+
+> Notifikasi WA hanya terkirim saat status laporan diubah ke **Selesai**.
+
+---
+
+## 🌳 Algoritma C4.5
+
+Klasifikasi urgensi menggunakan atribut berikut:
+
+| Atribut | Nilai |
+|---|---|
+| Jenis Gangguan | Kabel Putus, Trafo Meledak, Padam Total, Lampu Jalan Mati |
+| Dampak Wilayah | Satu Rumah, Satu RT, Fasilitas Umum, Seluruh Desa |
+| Durasi Padam | Dalam jam |
+
+**Output:** `Tinggi` / `Sedang` / `Rendah`
+
+Implementasi di: `app/Services/ClassificationService.php`
+
+---
+
+## 📁 Struktur Folder Penting
+
+```
+app/
+├── Models/
+│   └── Report.php
+├── Services/
+│   └── ClassificationService.php     ← Algoritma C4.5
+└── Http/Middleware/
+    └── IsAdmin.php
+
+resources/views/livewire/
+├── admindashboard.blade.php          ← Dashboard admin + Chart
+├── reportform.blade.php              ← Form pelaporan publik
+└── check-report.blade.php           ← Cek status laporan
+```
+
+---
+
+## 📄 Lisensi
+
+Proyek ini dibuat untuk keperluan **Final Project / Skripsi**.  
+© 2026 — Sistem Informasi Geografis Gangguan Listrik
