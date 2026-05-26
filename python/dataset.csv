@@ -1,0 +1,80 @@
+jenis_gangguan,dampak_wilayah,durasi_padam,urgensi
+Kabel Putus,Satu Rumah,1,Tinggi
+Kabel Putus,Satu RT,2,Tinggi
+Kabel Putus,Fasilitas Umum,3,Tinggi
+Kabel Putus,Seluruh Desa,5,Tinggi
+Kabel Putus,Satu Rumah,8,Tinggi
+Kabel Putus,Satu RT,12,Tinggi
+Kabel Putus,Fasilitas Umum,1,Tinggi
+Kabel Putus,Seluruh Desa,2,Tinggi
+Kabel Putus,Satu Rumah,4,Tinggi
+Kabel Putus,Seluruh Desa,12,Tinggi
+Trafo Meledak,Satu Rumah,1,Tinggi
+Trafo Meledak,Satu RT,2,Tinggi
+Trafo Meledak,Fasilitas Umum,4,Tinggi
+Trafo Meledak,Seluruh Desa,6,Tinggi
+Trafo Meledak,Satu Rumah,10,Tinggi
+Trafo Meledak,Satu RT,1,Tinggi
+Trafo Meledak,Seluruh Desa,3,Tinggi
+Trafo Meledak,Fasilitas Umum,2,Tinggi
+Tiang Listrik Roboh,Satu Rumah,1,Tinggi
+Tiang Listrik Roboh,Satu RT,2,Tinggi
+Tiang Listrik Roboh,Fasilitas Umum,3,Tinggi
+Tiang Listrik Roboh,Seluruh Desa,5,Tinggi
+Tiang Listrik Roboh,Satu Rumah,8,Tinggi
+Tiang Listrik Roboh,Satu RT,1,Tinggi
+Tiang Listrik Roboh,Fasilitas Umum,6,Tinggi
+Tiang Listrik Roboh,Seluruh Desa,2,Tinggi
+Tiang Listrik Roboh,Satu RT,4,Tinggi
+Tiang Listrik Roboh,Satu RT,10,Tinggi
+Padam Total,Seluruh Desa,1,Tinggi
+Padam Total,Seluruh Desa,3,Tinggi
+Padam Total,Seluruh Desa,6,Tinggi
+Padam Total,Seluruh Desa,10,Tinggi
+Padam Total,Seluruh Desa,2,Tinggi
+Padam Total,Seluruh Desa,12,Tinggi
+Padam Total,Fasilitas Umum,6,Tinggi
+Padam Total,Fasilitas Umum,8,Tinggi
+Padam Total,Fasilitas Umum,10,Tinggi
+Padam Total,Fasilitas Umum,4,Tinggi
+Padam Total,Fasilitas Umum,3,Tinggi
+Padam Total,Fasilitas Umum,5,Tinggi
+Padam Total,Fasilitas Umum,1,Sedang
+Padam Total,Fasilitas Umum,2,Sedang
+Padam Total,Satu RT,8,Tinggi
+Padam Total,Satu RT,10,Tinggi
+Padam Total,Satu RT,6,Tinggi
+Padam Total,Satu RT,4,Sedang
+Padam Total,Satu RT,3,Sedang
+Padam Total,Satu RT,1,Sedang
+Padam Total,Satu RT,2,Sedang
+Padam Total,Satu RT,5,Sedang
+Padam Total,Satu Rumah,8,Sedang
+Padam Total,Satu Rumah,10,Sedang
+Padam Total,Satu Rumah,6,Sedang
+Padam Total,Satu Rumah,3,Sedang
+Padam Total,Satu Rumah,4,Sedang
+Padam Total,Satu Rumah,12,Sedang
+Padam Total,Satu Rumah,1,Rendah
+Padam Total,Satu Rumah,2,Rendah
+Lampu Jalan Mati,Seluruh Desa,6,Sedang
+Lampu Jalan Mati,Seluruh Desa,8,Sedang
+Lampu Jalan Mati,Seluruh Desa,10,Sedang
+Lampu Jalan Mati,Seluruh Desa,3,Sedang
+Lampu Jalan Mati,Seluruh Desa,4,Sedang
+Lampu Jalan Mati,Seluruh Desa,1,Rendah
+Lampu Jalan Mati,Seluruh Desa,2,Rendah
+Lampu Jalan Mati,Fasilitas Umum,6,Sedang
+Lampu Jalan Mati,Fasilitas Umum,8,Sedang
+Lampu Jalan Mati,Fasilitas Umum,10,Sedang
+Lampu Jalan Mati,Fasilitas Umum,3,Rendah
+Lampu Jalan Mati,Fasilitas Umum,1,Rendah
+Lampu Jalan Mati,Fasilitas Umum,2,Rendah
+Lampu Jalan Mati,Satu RT,6,Rendah
+Lampu Jalan Mati,Satu RT,3,Rendah
+Lampu Jalan Mati,Satu RT,1,Rendah
+Lampu Jalan Mati,Satu RT,8,Rendah
+Lampu Jalan Mati,Satu Rumah,6,Rendah
+Lampu Jalan Mati,Satu Rumah,3,Rendah
+Lampu Jalan Mati,Satu Rumah,1,Rendah
+Lampu Jalan Mati,Satu Rumah,2,Rendah

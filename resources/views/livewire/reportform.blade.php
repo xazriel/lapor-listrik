@@ -179,6 +179,7 @@ new class extends Component {
                             <option value="">-- Pilih Jenis Gangguan --</option>
                             <option value="Kabel Putus">Kabel Putus</option>
                             <option value="Trafo Meledak">Trafo Meledak</option>
+                            <option value="Tiang Listrik Roboh">Tiang Listrik Roboh</option>
                             <option value="Padam Total">Padam Total</option>
                             <option value="Lampu Jalan Mati">Lampu Jalan Mati</option>
                         </select>

@@ -191,7 +191,254 @@ new class extends Component {
         </div>
     </div>
 
+    {{-- ===== SECTION: MODEL C4.5 ===== --}}
+    @php $m = config('c45_model'); @endphp
+    <div class="px-6 pb-4 space-y-4">
+
+        {{-- Header --}}
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-lg bg-violet-100 flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-violet-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+                </svg>
+            </div>
+            <div>
+                <h2 class="text-sm font-black text-gray-700 uppercase tracking-wide">Informasi Model C4.5</h2>
+                <p class="text-[11px] text-gray-400">Dilatih dengan Python scikit-learn — criterion=entropy</p>
+            </div>
+        </div>
+
+        {{-- Stat Cards Akurasi --}}
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="bg-gradient-to-br from-violet-600 to-violet-800 rounded-xl p-4 text-white shadow-lg">
+                <div class="text-2xl font-black">{{ number_format($m['akurasi_training'], 1) }}%</div>
+                <div class="text-[10px] font-bold text-violet-200 uppercase tracking-wider mt-1">Akurasi Training</div>
+            </div>
+            <div class="bg-gradient-to-br from-blue-600 to-blue-800 rounded-xl p-4 text-white shadow-lg">
+                <div class="text-2xl font-black">{{ number_format($m['akurasi_testing'], 1) }}%</div>
+                <div class="text-[10px] font-bold text-blue-200 uppercase tracking-wider mt-1">Akurasi Testing</div>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-xl p-4 text-white shadow-lg">
+                <div class="text-2xl font-black">{{ number_format($m['akurasi_cv'], 1) }}%</div>
+                <div class="text-[10px] font-bold text-emerald-200 uppercase tracking-wider mt-1">CV 5-Fold</div>
+            </div>
+            <div class="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                <div class="text-2xl font-black text-gray-800">{{ $m['total_data'] }}</div>
+                <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mt-1">Data Training</div>
+            </div>
+        </div>
+
+        {{-- Confusion Matrix + Rules --}}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+
+            {{-- Confusion Matrix --}}
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                <h3 class="text-xs font-black text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    Confusion Matrix
+                    <span class="text-[10px] text-gray-400 font-normal normal-case">({{ $m['total_testing'] }} data testing)</span>
+                </h3>
+                @php
+                    $klsArr  = $m['kelas'];
+                    $cm      = $m['confusion_matrix'];
+                @endphp
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="p-2 text-[10px] text-gray-400 font-bold text-left">Aktual ↓ / Prediksi →</th>
+                                @foreach($klsArr as $col)
+                                    <th class="p-2 bg-slate-700 text-white rounded text-center text-[10px] font-black">{{ $col }}</th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($klsArr as $rowKls)
+                                <tr>
+                                    <td class="p-2 font-black text-gray-600 text-[11px]">{{ $rowKls }}</td>
+                                    @foreach($klsArr as $colKls)
+                                        @php
+                                            $val = $cm[$rowKls][$colKls] ?? 0;
+                                            $cls = $rowKls === $colKls
+                                                ? ($val > 0 ? 'bg-emerald-50 text-emerald-700 font-black border border-emerald-200' : 'bg-gray-50 text-gray-300')
+                                                : ($val > 0 ? 'bg-red-50 text-red-600 font-bold border border-red-100'   : 'bg-gray-50 text-gray-300');
+                                        @endphp
+                                        <td class="p-2 text-center rounded {{ $cls }} text-sm">{{ $val }}</td>
+                                    @endforeach
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <p class="mt-3 text-[10px] text-gray-400 italic">
+                    ✅ Hijau = prediksi benar &nbsp;|&nbsp; 🔴 Merah = kesalahan klasifikasi
+                </p>
+            </div>
+
+            {{-- Decision Tree Rules --}}
+            <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+                <h3 class="text-xs font-black text-gray-600 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-violet-500"></span>
+                    Rules Pohon Keputusan C4.5
+                </h3>
+                <div class="space-y-2 max-h-64 overflow-y-auto pr-1">
+                    @foreach($m['rules'] as $i => $rule)
+                        @php
+                            $badgeColor = match($rule['hasil']) {
+                                'Tinggi' => 'bg-red-100 text-red-700 border-red-200',
+                                'Sedang' => 'bg-amber-100 text-amber-700 border-amber-200',
+                                default  => 'bg-blue-100 text-blue-700 border-blue-200',
+                            };
+                        @endphp
+                        <div class="flex items-start gap-2 p-2.5 rounded-lg bg-gray-50 border border-gray-100 hover:border-violet-200 transition">
+                            <span class="flex-shrink-0 w-5 h-5 rounded-full bg-violet-100 text-violet-700 text-[10px] font-black flex items-center justify-center">{{ $i+1 }}</span>
+                            <div class="flex-1 min-w-0">
+                                <p class="text-[10px] text-gray-600 leading-snug font-mono">{{ $rule['kondisi'] }}</p>
+                                <div class="flex items-center gap-2 mt-1">
+                                    <span class="px-1.5 py-0.5 text-[9px] font-black border rounded {{ $badgeColor }} uppercase">{{ $rule['hasil'] }}</span>
+                                    <span class="text-[9px] text-gray-400 italic">{{ $rule['alasan'] }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        {{-- Footer info bar --}}
+        <div class="bg-gradient-to-r from-slate-800 to-slate-700 rounded-xl p-4 flex flex-wrap items-center gap-4">
+            <div class="text-xs text-slate-300 font-medium flex-1">
+                <span class="text-white font-black">Algoritma C4.5</span> &nbsp;|&nbsp;
+                criterion = entropy &nbsp;|&nbsp;
+                {{ $m['total_atribut'] }} Atribut Input &nbsp;|&nbsp;
+                {{ count($m['kelas']) }} Kelas Output &nbsp;|&nbsp;
+                CV ±{{ number_format($m['cv_std'], 2) }}%
+            </div>
+            <div class="flex gap-2">
+                @foreach($m['kelas'] as $kls)
+                    @php $dot = match($kls) { 'Tinggi' => 'bg-red-400', 'Sedang' => 'bg-amber-400', default => 'bg-blue-400' }; @endphp
+                    <span class="inline-flex items-center gap-1 px-2 py-1 bg-slate-600 rounded-full text-[10px] text-white font-bold">
+                        <span class="w-1.5 h-1.5 rounded-full {{ $dot }}"></span>{{ $kls }}
+                    </span>
+                @endforeach
+            </div>
+        </div>
+    </div>
+
+    {{-- ===== DATASET TRAINING C4.5 (Collapsible) ===== --}}
+    <div class="px-6 pb-4" x-data="{ open: false }">
+        {{-- Toggle Button --}}
+        <button @click="open = !open"
+                class="w-full flex items-center justify-between px-5 py-3.5 bg-white border border-gray-200 rounded-xl shadow-sm hover:border-violet-300 hover:shadow-md transition group">
+            <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded-lg bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-200 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                </div>
+                <div class="text-left">
+                    <p class="text-sm font-black text-gray-700">Dataset Training C4.5</p>
+                    <p class="text-[11px] text-gray-400">python/dataset.csv — {{ config('c45_model.total_data') }} baris data</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full uppercase">CSV</span>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </div>
+        </button>
+
+        {{-- Dataset Table (collapsible) --}}
+        <div x-show="open" x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-2"
+             class="mt-3 bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+
+            @php
+                $csvPath = base_path('python/dataset.csv');
+                $csvRows = [];
+                $csvHeader = [];
+                if (file_exists($csvPath)) {
+                    $file = fopen($csvPath, 'r');
+                    $csvHeader = fgetcsv($file);
+                    while (($row = fgetcsv($file)) !== false) {
+                        $csvRows[] = $row;
+                    }
+                    fclose($file);
+                }
+                $urgensiCount = ['Tinggi' => 0, 'Sedang' => 0, 'Rendah' => 0];
+                foreach ($csvRows as $row) {
+                    $label = $row[3] ?? '';
+                    if (isset($urgensiCount[$label])) $urgensiCount[$label]++;
+                }
+            @endphp
+
+            {{-- Mini Stats Bar --}}
+            <div class="px-5 py-3 bg-gray-50 border-b border-gray-100 flex flex-wrap items-center gap-4">
+                <span class="text-[11px] font-bold text-gray-500">{{ count($csvRows) }} baris</span>
+                <span class="text-gray-300">|</span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-red-600">
+                    <span class="w-2 h-2 rounded-full bg-red-400"></span> Tinggi: {{ $urgensiCount['Tinggi'] }}
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-amber-600">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> Sedang: {{ $urgensiCount['Sedang'] }}
+                </span>
+                <span class="inline-flex items-center gap-1 text-[11px] font-bold text-blue-600">
+                    <span class="w-2 h-2 rounded-full bg-blue-400"></span> Rendah: {{ $urgensiCount['Rendah'] }}
+                </span>
+                <span class="ml-auto text-[10px] text-gray-400 italic">Sumber: python/dataset.csv</span>
+            </div>
+
+            {{-- Table --}}
+            <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="sticky top-0 bg-slate-700 text-white z-10">
+                        <tr>
+                            <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider">#</th>
+                            @foreach($csvHeader as $head)
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider">{{ $head }}</th>
+                            @endforeach
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50">
+                        @foreach($csvRows as $i => $row)
+                            @php
+                                $urgensi = $row[3] ?? '';
+                                $rowBg = match($urgensi) {
+                                    'Tinggi' => 'hover:bg-red-50/50',
+                                    'Sedang' => 'hover:bg-amber-50/50',
+                                    default  => 'hover:bg-blue-50/50',
+                                };
+                                $badge = match($urgensi) {
+                                    'Tinggi' => 'bg-red-100 text-red-700 border-red-200',
+                                    'Sedang' => 'bg-amber-100 text-amber-700 border-amber-200',
+                                    default  => 'bg-blue-100 text-blue-700 border-blue-200',
+                                };
+                            @endphp
+                            <tr class="transition {{ $rowBg }}">
+                                <td class="px-4 py-2 text-gray-400 font-mono">{{ $i + 1 }}</td>
+                                <td class="px-4 py-2 text-gray-700 font-semibold">{{ $row[0] ?? '-' }}</td>
+                                <td class="px-4 py-2 text-gray-600">{{ $row[1] ?? '-' }}</td>
+                                <td class="px-4 py-2 text-gray-600">{{ $row[2] ?? '-' }} jam</td>
+                                <td class="px-4 py-2">
+                                    <span class="px-2 py-0.5 text-[10px] font-black border rounded-full {{ $badge }} uppercase">
+                                        {{ $row[3] ?? '-' }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     {{-- ===== TABEL UTAMA ===== --}}
+
     <div class="overflow-x-auto px-6 pb-6">
         <table class="w-full text-left border-collapse bg-white rounded-xl shadow-sm overflow-hidden">
             <thead>

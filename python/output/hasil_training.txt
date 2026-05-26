@@ -1,0 +1,50 @@
+=======================================================
+  LAPORAN TRAINING MODEL C4.5
+  Sistem Lapor Listrik — Desa Tanjung Durian
+=======================================================
+
+Total Data Training : 63
+Total Data Testing  : 16
+Total Atribut       : 3 (Jenis, Dampak, Durasi)
+
+Akurasi Training    : 95.24%
+Akurasi Testing     : 93.75%
+Akurasi CV (5-Fold) : 84.83%
+
+Confusion Matrix:
+              Rendah  Sedang  Tinggi
+      Rendah       3       0       0
+      Sedang       0       3       1
+      Tinggi       0       0       9
+
+|--- jenis_gangguan <= 2.50
+|   |--- jenis_gangguan <= 0.50
+|   |   |--- class: 2
+|   |--- jenis_gangguan >  0.50
+|   |   |--- jenis_gangguan <= 1.50
+|   |   |   |--- durasi_kategori <= 0.50
+|   |   |   |   |--- class: 0
+|   |   |   |--- durasi_kategori >  0.50
+|   |   |   |   |--- dampak_wilayah <= 2.50
+|   |   |   |   |   |--- dampak_wilayah <= 0.50
+|   |   |   |   |   |   |--- class: 1
+|   |   |   |   |   |--- dampak_wilayah >  0.50
+|   |   |   |   |   |   |--- class: 0
+|   |   |   |   |--- dampak_wilayah >  2.50
+|   |   |   |   |   |--- class: 1
+|   |   |--- jenis_gangguan >  1.50
+|   |   |   |--- dampak_wilayah <= 2.50
+|   |   |   |   |--- dampak_wilayah <= 1.50
+|   |   |   |   |   |--- durasi_kategori <= 0.50
+|   |   |   |   |   |   |--- class: 1
+|   |   |   |   |   |--- durasi_kategori >  0.50
+|   |   |   |   |   |   |--- class: 2
+|   |   |   |   |--- dampak_wilayah >  1.50
+|   |   |   |   |   |--- durasi_kategori <= 0.50
+|   |   |   |   |   |   |--- class: 0
+|   |   |   |   |   |--- durasi_kategori >  0.50
+|   |   |   |   |   |   |--- class: 1
+|   |   |   |--- dampak_wilayah >  2.50
+|   |   |   |   |--- class: 2
+|--- jenis_gangguan >  2.50
+|   |--- class: 2
