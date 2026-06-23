@@ -17,7 +17,14 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="min-h-screen" style="background: linear-gradient(160deg, #0f172a 0%, #1e3a5f 50%, #0f172a 100%);">
+<body class="min-h-screen relative text-slate-100 overflow-x-hidden">
+    <!-- Full-screen Background with Zoom & Perfect Fit (Inline CSS to prevent Tailwind purge issues) -->
+    <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: -10; background-color: #020617; overflow: hidden; pointer-events: none;">
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: url('{{ asset('rural_village_bg.jpg') }}'); background-size: cover; background-position: center; background-repeat: no-repeat; transform: scale(1.08); filter: brightness(0.75) contrast(1.05);">
+        </div>
+        <!-- Gradient Overlay for Premium Look -->
+        <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(160deg, rgba(15, 23, 42, 0.5) 0%, rgba(15, 23, 42, 0.6) 60%, rgba(2, 6, 23, 0.7) 100%);"></div>
+    </div>
 
     {{-- ===== NAVBAR ===== --}}
     <nav class="w-full px-4 py-3">

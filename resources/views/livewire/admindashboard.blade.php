@@ -16,6 +16,30 @@ new class extends Component {
                         ->orderByDesc('total')
                         ->get();
 
+        // Data laporan per minggu (12 minggu terakhir)
+        $weeklyReports = Report::selectRaw(
+                'YEARWEEK(created_at, 1) as year_week,
+                 MIN(DATE(created_at)) as week_start,
+                 COUNT(*) as total,
+                 SUM(CASE WHEN status = \'selesai\' THEN 1 ELSE 0 END) as selesai,
+                 SUM(CASE WHEN status = \'proses\' THEN 1 ELSE 0 END) as proses,
+                 SUM(CASE WHEN status = \'pending\' THEN 1 ELSE 0 END) as pending,
+                 SUM(CASE WHEN urgensi = \'Tinggi\' THEN 1 ELSE 0 END) as tinggi,
+                 SUM(CASE WHEN urgensi = \'Sedang\' THEN 1 ELSE 0 END) as sedang,
+                 SUM(CASE WHEN urgensi = \'Rendah\' THEN 1 ELSE 0 END) as rendah'
+            )
+            ->where('created_at', '>=', now()->subWeeks(12)->startOfWeek())
+            ->groupBy('year_week')
+            ->orderBy('year_week')
+            ->get()
+            ->map(function ($row, $index) {
+                $start = \Carbon\Carbon::parse($row->week_start);
+                $end   = $start->copy()->addDays(6);
+                $row->label = 'Minggu ' . ($index + 1) . ' (' . $start->format('d M') . ' – ' . $end->format('d M') . ')';
+                $row->short_label = $start->format('d M');
+                return $row;
+            });
+
         $totalLaporan  = Report::count();
         $totalPending  = Report::where('status', 'pending')->count();
         $totalProses   = Report::where('status', 'proses')->count();
@@ -23,13 +47,14 @@ new class extends Component {
         $totalTinggi   = Report::where('urgensi', 'Tinggi')->count();
 
         return [
-            'reports'       => $reports,
-            'byCategory'    => $byCategory,
-            'totalLaporan'  => $totalLaporan,
-            'totalPending'  => $totalPending,
-            'totalProses'   => $totalProses,
-            'totalSelesai'  => $totalSelesai,
-            'totalTinggi'   => $totalTinggi,
+            'reports'        => $reports,
+            'byCategory'     => $byCategory,
+            'weeklyReports'  => $weeklyReports,
+            'totalLaporan'   => $totalLaporan,
+            'totalPending'   => $totalPending,
+            'totalProses'    => $totalProses,
+            'totalSelesai'   => $totalSelesai,
+            'totalTinggi'    => $totalTinggi,
         ];
     }
 
@@ -186,6 +211,123 @@ new class extends Component {
                             <span class="text-[11px] font-black text-gray-800">{{ $cat->total }}</span>
                         </div>
                     @endforeach
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- ===== SECTION: LAPORAN PER MINGGU ===== --}}
+    <div class="px-6 pb-4">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+
+            {{-- Header --}}
+            <div class="flex items-center justify-between mb-5">
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-teal-100 flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-sm font-black text-gray-700 uppercase tracking-wide">Laporan Per Minggu</h2>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Rekap 12 minggu terakhir berdasarkan status & urgensi</p>
+                    </div>
+                </div>
+                <span class="text-[10px] font-bold text-teal-600 bg-teal-50 border border-teal-200 px-3 py-1 rounded-full uppercase">{{ $weeklyReports->count() }} Minggu</span>
+            </div>
+
+            @if($weeklyReports->isEmpty())
+                <div class="flex items-center justify-center h-40 text-gray-400 text-sm italic">
+                    Belum ada data laporan mingguan.
+                </div>
+            @else
+                {{-- Chart Mingguan --}}
+                <div class="relative mb-5" style="height: 240px;">
+                    <canvas id="weeklyChart"></canvas>
+                </div>
+
+                {{-- Tabel Mingguan --}}
+                <div class="overflow-x-auto mt-2">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-700 text-white">
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider rounded-tl-lg">Periode</th>
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-center">Total</th>
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-center">Pending</th>
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-center">Proses</th>
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-center">Selesai</th>
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-center">🔴 Tinggi</th>
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-center">🟡 Sedang</th>
+                                <th class="px-4 py-2.5 text-[10px] font-black uppercase tracking-wider text-center rounded-tr-lg">🔵 Rendah</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-50">
+                            @foreach($weeklyReports as $week)
+                                <tr class="hover:bg-teal-50/40 transition">
+                                    <td class="px-4 py-3">
+                                        <div class="font-bold text-gray-700 text-[11px]">{{ $week->label }}</div>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <span class="text-sm font-black text-gray-800">{{ $week->total }}</span>
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($week->pending > 0)
+                                            <span class="px-2 py-0.5 bg-amber-100 text-amber-700 border border-amber-200 text-[10px] font-black rounded-full">{{ $week->pending }}</span>
+                                        @else
+                                            <span class="text-gray-300 text-[10px]">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($week->proses > 0)
+                                            <span class="px-2 py-0.5 bg-blue-100 text-blue-700 border border-blue-200 text-[10px] font-black rounded-full">{{ $week->proses }}</span>
+                                        @else
+                                            <span class="text-gray-300 text-[10px]">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($week->selesai > 0)
+                                            <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] font-black rounded-full">{{ $week->selesai }}</span>
+                                        @else
+                                            <span class="text-gray-300 text-[10px]">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($week->tinggi > 0)
+                                            <span class="px-2 py-0.5 bg-red-100 text-red-700 border border-red-200 text-[10px] font-black rounded-full">{{ $week->tinggi }}</span>
+                                        @else
+                                            <span class="text-gray-300 text-[10px]">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($week->sedang > 0)
+                                            <span class="px-2 py-0.5 bg-yellow-100 text-yellow-700 border border-yellow-200 text-[10px] font-black rounded-full">{{ $week->sedang }}</span>
+                                        @else
+                                            <span class="text-gray-300 text-[10px]">—</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($week->rendah > 0)
+                                            <span class="px-2 py-0.5 bg-blue-100 text-blue-600 border border-blue-200 text-[10px] font-black rounded-full">{{ $week->rendah }}</span>
+                                        @else
+                                            <span class="text-gray-300 text-[10px]">—</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                        <tfoot>
+                            <tr class="bg-gray-50 border-t-2 border-gray-200">
+                                <td class="px-4 py-2.5 text-[10px] font-black text-gray-600 uppercase">Total Keseluruhan</td>
+                                <td class="px-4 py-2.5 text-center text-sm font-black text-gray-800">{{ $weeklyReports->sum('total') }}</td>
+                                <td class="px-4 py-2.5 text-center text-[11px] font-black text-amber-700">{{ $weeklyReports->sum('pending') }}</td>
+                                <td class="px-4 py-2.5 text-center text-[11px] font-black text-blue-700">{{ $weeklyReports->sum('proses') }}</td>
+                                <td class="px-4 py-2.5 text-center text-[11px] font-black text-emerald-700">{{ $weeklyReports->sum('selesai') }}</td>
+                                <td class="px-4 py-2.5 text-center text-[11px] font-black text-red-700">{{ $weeklyReports->sum('tinggi') }}</td>
+                                <td class="px-4 py-2.5 text-center text-[11px] font-black text-yellow-700">{{ $weeklyReports->sum('sedang') }}</td>
+                                <td class="px-4 py-2.5 text-center text-[11px] font-black text-blue-700">{{ $weeklyReports->sum('rendah') }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             @endif
         </div>
@@ -540,62 +682,158 @@ new class extends Component {
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+    // ===== Chart: Laporan per Kategori =====
     var labels   = @json($byCategory->pluck('jenis_gangguan'));
     var data     = @json($byCategory->pluck('total'));
     var colors   = ['#6366f1','#f59e0b','#10b981','#ef4444','#3b82f6','#8b5cf6','#ec4899','#14b8a6'];
     var bgColors = labels.map(function(_, i){ return colors[i % colors.length]; });
 
     var ctx = document.getElementById('categoryChart');
-    if (!ctx) return;
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Jumlah Laporan',
-                data: data,
-                backgroundColor: bgColors.map(function(c){ return c + 'cc'; }),
-                borderColor: bgColors,
-                borderWidth: 2,
-                borderRadius: 8,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function(ctx) {
-                            return ' ' + ctx.parsed.y + ' laporan';
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Jumlah Laporan',
+                    data: data,
+                    backgroundColor: bgColors.map(function(c){ return c + 'cc'; }),
+                    borderColor: bgColors,
+                    borderWidth: 2,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function(ctx) {
+                                return ' ' + ctx.parsed.y + ' laporan';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 11, weight: '700' },
+                            color: '#6b7280',
+                            maxRotation: 30,
+                        }
+                    },
+                    y: {
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        ticks: {
+                            stepSize: 1,
+                            font: { size: 11 },
+                            color: '#9ca3af',
                         }
                     }
                 }
+            }
+        });
+    }
+
+    // ===== Chart: Laporan per Minggu =====
+    var weeklyLabels  = @json($weeklyReports->pluck('short_label'));
+    var weeklyTotal   = @json($weeklyReports->pluck('total'));
+    var weeklySelesai = @json($weeklyReports->pluck('selesai'));
+    var weeklyProses  = @json($weeklyReports->pluck('proses'));
+    var weeklyPending = @json($weeklyReports->pluck('pending'));
+
+    var wCtx = document.getElementById('weeklyChart');
+    if (wCtx) {
+        new Chart(wCtx, {
+            type: 'bar',
+            data: {
+                labels: weeklyLabels,
+                datasets: [
+                    {
+                        label: 'Selesai',
+                        data: weeklySelesai,
+                        backgroundColor: '#10b98199',
+                        borderColor: '#10b981',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        stack: 'status',
+                    },
+                    {
+                        label: 'Proses',
+                        data: weeklyProses,
+                        backgroundColor: '#3b82f699',
+                        borderColor: '#3b82f6',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        stack: 'status',
+                    },
+                    {
+                        label: 'Pending',
+                        data: weeklyPending,
+                        backgroundColor: '#f59e0b99',
+                        borderColor: '#f59e0b',
+                        borderWidth: 2,
+                        borderRadius: 6,
+                        borderSkipped: false,
+                        stack: 'status',
+                    }
+                ]
             },
-            scales: {
-                x: {
-                    grid: { display: false },
-                    ticks: {
-                        font: { size: 11, weight: '700' },
-                        color: '#6b7280',
-                        maxRotation: 30,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: { size: 11, weight: '700' },
+                            color: '#6b7280',
+                            boxWidth: 12,
+                            padding: 16,
+                        }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        callbacks: {
+                            afterBody: function(items) {
+                                var total = items.reduce(function(sum, i){ return sum + i.parsed.y; }, 0);
+                                return ['', 'Total: ' + total + ' laporan'];
+                            }
+                        }
                     }
                 },
-                y: {
-                    beginAtZero: true,
-                    grid: { color: '#f3f4f6' },
-                    ticks: {
-                        stepSize: 1,
-                        font: { size: 11 },
-                        color: '#9ca3af',
+                scales: {
+                    x: {
+                        stacked: true,
+                        grid: { display: false },
+                        ticks: {
+                            font: { size: 10, weight: '700' },
+                            color: '#6b7280',
+                        }
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true,
+                        grid: { color: '#f3f4f6' },
+                        ticks: {
+                            stepSize: 1,
+                            font: { size: 11 },
+                            color: '#9ca3af',
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    }
 });
 </script>
 @endpush
