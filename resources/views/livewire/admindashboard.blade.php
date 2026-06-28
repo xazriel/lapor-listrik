@@ -74,12 +74,12 @@ new class extends Component {
 
     protected function sendWhatsApp($report): void
     {
-        $token = "cUpADgNKy8LQkFg1LdgT";
+        $token = "wC9ChHo1j2fHHVeKu1mp";
 
         $pesan = "Halo *" . $report->nama_pelapor . "*,\n\n";
         $pesan .= "Laporan Anda mengenai *" . $report->jenis_gangguan . "* di wilayah *" . $report->dampak_wilayah . "* telah dideteksi sebagai *SELESAI*.\n\n";
         $pesan .= "Terima kasih telah melapor. Petugas kami telah menangani gangguan tersebut.\n\n";
-        $pesan .= "_Pesan otomatis dari Sistem Informasi YAI_";
+        $pesan .= "_Pesan otomatis dari JMK48_";
 
         try {
             $response = Http::withoutVerifying()
@@ -100,7 +100,65 @@ new class extends Component {
 
 {{-- TIDAK ADA <script> di sini, semua dipindah ke @push --}}
 
-<div>
+<div class="flex gap-0">
+
+    {{-- ===== SIDEBAR NAVIGASI KIRI ===== --}}
+    <aside class="hidden lg:flex flex-col gap-1 w-48 flex-shrink-0 sticky top-0 self-start pt-6 pb-6 pl-4 pr-2 h-screen overflow-y-auto" style="max-height: 100vh;">
+        <div class="mb-3 px-2">
+            <span class="text-[9px] font-black text-gray-300 uppercase tracking-widest">Navigasi</span>
+        </div>
+
+        <a href="#sec-ringkasan"
+           class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-gray-100 transition cursor-pointer"
+           onclick="document.getElementById('sec-ringkasan').scrollIntoView({behavior:'smooth'}); return false;">
+            <span class="w-1 h-7 rounded-full bg-gray-300 group-hover:bg-gray-500 transition flex-shrink-0"></span>
+            <span class="text-[11px] font-bold text-gray-400 group-hover:text-gray-700 transition leading-tight">Ringkasan</span>
+        </a>
+
+        <a href="#sec-grafik"
+           class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-indigo-50 transition cursor-pointer"
+           onclick="document.getElementById('sec-grafik').scrollIntoView({behavior:'smooth'}); return false;">
+            <span class="w-1 h-7 rounded-full bg-indigo-200 group-hover:bg-indigo-500 transition flex-shrink-0"></span>
+            <span class="text-[11px] font-bold text-indigo-300 group-hover:text-indigo-600 transition leading-tight">Grafik Laporan</span>
+        </a>
+
+        <a href="#sec-mingguan"
+           class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-teal-50 transition cursor-pointer"
+           onclick="document.getElementById('sec-mingguan').scrollIntoView({behavior:'smooth'}); return false;">
+            <span class="w-1 h-7 rounded-full bg-teal-200 group-hover:bg-teal-500 transition flex-shrink-0"></span>
+            <span class="text-[11px] font-bold text-teal-300 group-hover:text-teal-600 transition leading-tight">Rekap Mingguan</span>
+        </a>
+
+        <a href="#sec-model"
+           class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-violet-50 transition cursor-pointer"
+           onclick="document.getElementById('sec-model').scrollIntoView({behavior:'smooth'}); return false;">
+            <span class="w-1 h-7 rounded-full bg-violet-200 group-hover:bg-violet-500 transition flex-shrink-0"></span>
+            <span class="text-[11px] font-bold text-violet-300 group-hover:text-violet-600 transition leading-tight">Model C4.5</span>
+        </a>
+
+        <a href="#sec-dataset"
+           class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-emerald-50 transition cursor-pointer"
+           onclick="document.getElementById('sec-dataset').scrollIntoView({behavior:'smooth'}); return false;">
+            <span class="w-1 h-7 rounded-full bg-emerald-200 group-hover:bg-emerald-500 transition flex-shrink-0"></span>
+            <span class="text-[11px] font-bold text-emerald-300 group-hover:text-emerald-600 transition leading-tight">Dataset Training</span>
+        </a>
+
+        <a href="#sec-laporan"
+           class="group flex items-center gap-2.5 px-3 py-2.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+           onclick="document.getElementById('sec-laporan').scrollIntoView({behavior:'smooth'}); return false;">
+            <span class="w-1 h-7 rounded-full bg-slate-300 group-hover:bg-slate-600 transition flex-shrink-0"></span>
+            <span class="text-[11px] font-bold text-slate-400 group-hover:text-slate-700 transition leading-tight">Daftar Laporan</span>
+        </a>
+
+        {{-- Garis pemisah bawah --}}
+        <div class="mt-auto pt-4">
+            <div class="h-px bg-gray-100 mx-2"></div>
+            <p class="text-[9px] text-gray-300 text-center mt-3 font-medium">Admin Panel</p>
+        </div>
+    </aside>
+
+    {{-- ===== KONTEN UTAMA ===== --}}
+    <div class="flex-1 min-w-0">
     {{-- Pesan Berhasil (Alert) --}}
     @if (session()->has('message'))
         <div class="m-6 p-4 bg-emerald-50 border-l-4 border-emerald-500 text-emerald-700 text-sm shadow-sm rounded-r-lg flex justify-between items-center">
@@ -117,8 +175,16 @@ new class extends Component {
         </div>
     @endif
 
+    {{-- ===== SECTION DIVIDER: RINGKASAN ===== --}}
+    <div id="sec-ringkasan" class="px-6 pt-4 pb-1 scroll-mt-6">
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest whitespace-nowrap">Ringkasan</span>
+            <div class="flex-1 h-px bg-gradient-to-r from-gray-200 to-transparent"></div>
+        </div>
+    </div>
+
     {{-- ===== STAT CARDS ===== --}}
-    <div class="px-6 pt-4 pb-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
+    <div class="px-6 pt-2 pb-2 grid grid-cols-2 sm:grid-cols-4 gap-4">
 
         {{-- Total Laporan --}}
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-4 flex items-center gap-3">
@@ -173,6 +239,14 @@ new class extends Component {
         </div>
     </div>
 
+    {{-- ===== SECTION DIVIDER: GRAFIK KATEGORI ===== --}}
+    <div id="sec-grafik" class="px-6 pt-4 pb-1 scroll-mt-6">
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-black text-indigo-400 uppercase tracking-widest whitespace-nowrap">Grafik Laporan</span>
+            <div class="flex-1 h-px bg-gradient-to-r from-indigo-200 to-transparent"></div>
+        </div>
+    </div>
+
     {{-- ===== CHART SECTION ===== --}}
     <div class="px-6 pb-4">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
@@ -213,6 +287,14 @@ new class extends Component {
                     @endforeach
                 </div>
             @endif
+        </div>
+    </div>
+
+    {{-- ===== SECTION DIVIDER: REKAP MINGGUAN ===== --}}
+    <div id="sec-mingguan" class="px-6 pt-4 pb-1 scroll-mt-6">
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-black text-teal-500 uppercase tracking-widest whitespace-nowrap">Rekap Mingguan</span>
+            <div class="flex-1 h-px bg-gradient-to-r from-teal-200 to-transparent"></div>
         </div>
     </div>
 
@@ -330,6 +412,14 @@ new class extends Component {
                     </table>
                 </div>
             @endif
+        </div>
+    </div>
+
+    {{-- ===== SECTION DIVIDER: MODEL C4.5 ===== --}}
+    <div id="sec-model" class="px-6 pt-4 pb-1 scroll-mt-6">
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-black text-violet-500 uppercase tracking-widest whitespace-nowrap">Model C4.5</span>
+            <div class="flex-1 h-px bg-gradient-to-r from-violet-200 to-transparent"></div>
         </div>
     </div>
 
@@ -467,6 +557,14 @@ new class extends Component {
         </div>
     </div>
 
+    {{-- ===== SECTION DIVIDER: DATASET TRAINING ===== --}}
+    <div id="sec-dataset" class="px-6 pt-4 pb-1 scroll-mt-6">
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-black text-emerald-500 uppercase tracking-widest whitespace-nowrap">Dataset Training</span>
+            <div class="flex-1 h-px bg-gradient-to-r from-emerald-200 to-transparent"></div>
+        </div>
+    </div>
+
     {{-- ===== DATASET TRAINING C4.5 (Collapsible) ===== --}}
     <div class="px-6 pb-4" x-data="{ open: false }">
         {{-- Toggle Button --}}
@@ -579,6 +677,14 @@ new class extends Component {
         </div>
     </div>
 
+    {{-- ===== SECTION DIVIDER: TABEL LAPORAN ===== --}}
+    <div id="sec-laporan" class="px-6 pt-4 pb-1 scroll-mt-6">
+        <div class="flex items-center gap-3">
+            <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Daftar Laporan Masuk</span>
+            <div class="flex-1 h-px bg-gradient-to-r from-slate-300 to-transparent"></div>
+        </div>
+    </div>
+
     {{-- ===== TABEL UTAMA ===== --}}
 
     <div class="overflow-x-auto px-6 pb-6">
@@ -675,7 +781,9 @@ new class extends Component {
             </tbody>
         </table>
     </div>
-</div>
+
+    </div>{{-- end konten utama --}}
+</div>{{-- end flex wrapper --}}
 
 {{-- ===== CHART.JS + INISIALISASI (semua dalam satu @push) ===== --}}
 @push('scripts')
